@@ -1,3 +1,16 @@
+// src/data/products.js
+
+import laptopImg from '../assets/laptop.png';
+import smartphoneImg from '../assets/smartphone.png';
+import headphonesImg from '../assets/headphones.png';
+import keyboardImg from '../assets/keyboard.png';
+import mouseImg from '../assets/mouse.png';
+import chairImg from '../assets/chair.png';
+import tableImg from '../assets/table.png';
+import monitorImg from '../assets/monitor.png';
+import printerImg from '../assets/printer.png';
+import backpackImg from '../assets/backpack.png';
+
 const products = [
   {
     id: 1,
@@ -6,7 +19,7 @@ const products = [
     stock: true,
     category: 'Electronics',
     description: 'High-performance laptop',
-    image: '/src/assets/laptop.png'  // Updated path
+    image: laptopImg
   },
   {
     id: 2,
@@ -15,7 +28,7 @@ const products = [
     stock: true,
     category: 'Electronics',
     description: 'Latest smartphone model',
-    image: '/src/assets/smartphone.png'  // Updated path
+    image: smartphoneImg
   },
   {
     id: 3,
@@ -24,7 +37,7 @@ const products = [
     stock: false,
     category: 'Accessories',
     description: 'Noise-cancelling headphones',
-    image: '/src/assets/headphones.png'  // Updated path
+    image: headphonesImg
   },
   {
     id: 4,
@@ -33,7 +46,7 @@ const products = [
     stock: true,
     category: 'Accessories',
     description: 'Mechanical keyboard',
-    image: '/src/assets/keyboard.png'  // Updated path
+    image: keyboardImg
   },
   {
     id: 5,
@@ -42,7 +55,7 @@ const products = [
     stock: true,
     category: 'Accessories',
     description: 'Wireless mouse',
-    image: '/src/assets/mouse.png'  // Updated path
+    image: mouseImg
   },
   {
     id: 6,
@@ -51,7 +64,7 @@ const products = [
     stock: true,
     category: 'Furniture',
     description: 'Ergonomic office chair',
-    image: '/src/assets/chair.png'  // Updated path
+    image: chairImg
   },
   {
     id: 7,
@@ -60,7 +73,7 @@ const products = [
     stock: true,
     category: 'Furniture',
     description: 'Study table with drawer',
-    image: '/src/assets/table.png'  // Updated path
+    image: tableImg
   },
   {
     id: 8,
@@ -69,7 +82,7 @@ const products = [
     stock: false,
     category: 'Electronics',
     description: 'Full HD monitor',
-    image: '/src/assets/monitor.png'  // Updated path
+    image: monitorImg
   },
   {
     id: 9,
@@ -78,7 +91,7 @@ const products = [
     stock: true,
     category: 'Electronics',
     description: 'All-in-one printer',
-    image: '/src/assets/printer.png'  // Updated path
+    image: printerImg
   },
   {
     id: 10,
@@ -87,7 +100,7 @@ const products = [
     stock: true,
     category: 'Accessories',
     description: 'Durable backpack',
-    image: '/src/assets/backpack.png'  // Updated path
+    image: backpackImg
   }
 ];
 
