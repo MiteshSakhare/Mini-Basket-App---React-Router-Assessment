@@ -1,31 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import products from '../data/products';
+import { useTheme } from '../context/ThemeContext'; // Updated to the single file
+
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
+  const { isDark } = useTheme(); // Added this line
 
-  // Load cart from localStorage only once on mount
+  // Load cart from localStorage on component mount
   useEffect(() => {
     const loadCart = () => {
       const savedCart = localStorage.getItem('cart');
-      if (savedCart && JSON.parse(savedCart).length > 0) {
-        setCartItems(JSON.parse(savedCart));
-      } else {
-        // Initialize with sample items for demo
-        const sampleCart = [
-          { ...products[0], quantity: 1 }, // Laptop
-          { ...products, quantity: 1 }  // Mouse
-        ];
-        setCartItems(sampleCart);
-        localStorage.setItem('cart', JSON.stringify(sampleCart));
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        setCartItems(parsedCart);
       }
     };
 
     loadCart();
 
-    // Listen for custom cart update events from other components
     const handleCartUpdate = () => {
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
@@ -38,12 +32,10 @@ function Cart() {
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate);
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, []);
 
-  // Save cart to localStorage and dispatch event (but don't create infinite loop)
   const saveCart = (newCartItems) => {
     localStorage.setItem('cart', JSON.stringify(newCartItems));
-    // Only dispatch event if we're updating from within this component
     window.dispatchEvent(new CustomEvent('cartUpdated'));
   };
 
@@ -106,254 +98,134 @@ function Cart() {
   const isEmpty = cartItems.length === 0;
 
   return (
-    <div style={{ 
-      padding: '2rem', 
-      maxWidth: '1000px', 
-      margin: '0 auto',
-      backgroundColor: '#f5f5f5',
-      minHeight: '80vh'
-    }}>
-      <div style={{ 
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '10px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '2rem'
-        }}>
-          <h1>Your Cart ({getTotalItems()} items)</h1>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button 
-              onClick={() => {
-                localStorage.removeItem('cart');
-                setCartItems([]);
-                window.dispatchEvent(new CustomEvent('cartUpdated'));
-              }}
-              style={{ 
-                backgroundColor: '#ffc107', 
-                color: 'black', 
-                border: 'none', 
-                padding: '0.5rem 1rem', 
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Reset Cart
-            </button>
-            {!isEmpty && (
-              <button 
-                onClick={clearCart}
-                style={{ 
-                  backgroundColor: '#dc3545', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '0.5rem 1rem', 
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                Clear Cart
-              </button>
-            )}
-          </div>
-        </div>
-        
-        {isEmpty ? (
-          <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <h2 style={{ color: '#666', marginBottom: '1rem' }}>Your cart is empty</h2>
-            <p style={{ marginBottom: '2rem' }}>Add some products to get started!</p>
-            <button 
-              onClick={() => navigate('/products')}
-              style={{ 
-                backgroundColor: '#007bff', 
-                color: 'white', 
-                border: 'none', 
-                padding: '1rem 2rem', 
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '1rem'
-              }}
-            >
-              Browse Products
-            </button>
-          </div>
-        ) : (
-          <div>
-            {cartItems.map(item => (
-              <div key={item.id} style={{ 
-                border: '1px solid #ddd', 
-                padding: '1rem', 
-                margin: '1rem 0', 
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: '#fafafa'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                  <div style={{
-                    width: '80px',
-                    height: '80px',
-                    backgroundColor: '#e9ecef',
-                    borderRadius: '4px',
-                    marginRight: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px solid #dee2e6'
-                  }}>
-                    <img 
-                      src={item.image} 
-                      alt={item.name} 
-                      style={{ 
-                        width: '76px', 
-                        height: '76px', 
-                        objectFit: 'cover', 
-                        borderRadius: '2px'
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentNode.innerHTML = `
-                          <div style="
-                            width: 76px; 
-                            height: 76px; 
-                            background: linear-gradient(45deg, #007bff, #28a745);
-                            border-radius: 2px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            color: white;
-                            font-weight: bold;
-                            font-size: 12px;
-                            text-align: center;
-                            line-height: 1.2;
-                          ">
-                            ${item.name}
-                          </div>
-                        `;
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem' }}>
-                      {item.name}
-                    </h4>
-                    <p style={{ margin: '0.25rem 0', color: '#666' }}>
-                      <strong>Price:</strong> ₹{item.price}
-                    </p>
-                    <p style={{ margin: '0.25rem 0', color: '#666' }}>
-                      <strong>Category:</strong> {item.category}
-                    </p>
-                  </div>
-                </div>
-                
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '1rem' 
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      style={{ 
-                        backgroundColor: '#6c757d', 
-                        color: 'white', 
-                        border: 'none', 
-                        padding: '0.25rem 0.5rem', 
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      -
-                    </button>
-                    <span style={{ 
-                      padding: '0.5rem 1rem', 
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      minWidth: '50px',
-                      textAlign: 'center',
-                      backgroundColor: 'white',
-                      fontWeight: 'bold'
-                    }}>
-                      {item.quantity}
-                    </span>
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      style={{ 
-                        backgroundColor: '#28a745', 
-                        color: 'white', 
-                        border: 'none', 
-                        padding: '0.25rem 0.5rem', 
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      +
-                    </button>
-                  </div>
-                  
-                  <div style={{ textAlign: 'right', minWidth: '100px' }}>
-                    <strong style={{ fontSize: '1.1rem', color: '#007bff' }}>
-                      ₹{item.price * item.quantity}
-                    </strong>
-                  </div>
-                  
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-lg-10">
+          <div className={`card shadow ${isDark ? 'bg-dark text-light' : ''}`}>
+            <div className="card-header">
+              <div className="d-flex justify-content-between align-items-center">
+                <h1 className="mb-0">Your Cart ({getTotalItems()} items)</h1>
+                {!isEmpty && (
                   <button 
-                    onClick={() => removeItem(item.id)}
-                    style={{ 
-                      backgroundColor: '#dc3545', 
-                      color: 'white', 
-                      border: 'none', 
-                      padding: '0.5rem 0.75rem', 
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
+                    onClick={clearCart}
+                    className="btn btn-outline-danger btn-sm"
                   >
-                    ✕
+                    Clear Cart
                   </button>
-                </div>
-              </div>
-            ))}
-            
-            <div style={{ 
-              marginTop: '2rem', 
-              padding: '1.5rem', 
-              backgroundColor: '#f8f9fa', 
-              borderRadius: '8px',
-              border: '2px solid #007bff'
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center' 
-              }}>
-                <div>
-                  <h3>Total Items: {getTotalItems()}</h3>
-                  <h2 style={{ color: '#007bff' }}>Total Amount: ₹{getTotalPrice()}</h2>
-                </div>
-                <button 
-                  onClick={proceedToCheckout}
-                  style={{ 
-                    backgroundColor: '#007bff', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '1rem 2rem', 
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '1.1rem',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  Proceed to Checkout
-                </button>
+                )}
               </div>
             </div>
+            
+            <div className="card-body">
+              {isEmpty ? (
+                <div className="text-center py-5">
+                  <div className="mb-4">
+                    <span className="display-1">🛒</span>
+                  </div>
+                  <h2 className="text-muted mb-3">Your cart is empty</h2>
+                  <p className="text-muted mb-4">Start shopping and add some products to your cart!</p>
+                  <button 
+                    onClick={() => navigate('/products')}
+                    className="btn btn-primary btn-lg"
+                  >
+                    Browse Products
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  {cartItems.map(item => (
+                    <div key={item.id} className="row align-items-center border-bottom py-3">
+                      <div className="col-md-2">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="img-fluid rounded"
+                          style={{ height: '80px', objectFit: 'cover' }}
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/80x80?text=' + encodeURIComponent(item.name);
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="col-md-4">
+                        <h5 className="mb-1">{item.name}</h5>
+                        <p className="text-muted mb-1">₹{item.price}</p>
+                        <small className="text-muted">{item.category}</small>
+                      </div>
+                      
+                      <div className="col-md-3">
+                        <div className="d-flex align-items-center">
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="btn btn-outline-secondary btn-sm"
+                          >
+                            -
+                          </button>
+                          <span className="mx-3 fw-bold">{item.quantity}</span>
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="btn btn-outline-secondary btn-sm"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="col-md-2 text-end">
+                        <div className="fw-bold text-success">
+                          ₹{item.price * item.quantity}
+                        </div>
+                      </div>
+                      
+                      <div className="col-md-1 text-end">
+                        <button 
+                          onClick={() => removeItem(item.id)}
+                          className="btn btn-outline-danger btn-sm"
+                          title="Remove item"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="mt-4">
+                    <div className="row">
+                      <div className="col-md-8">
+                        <button 
+                          onClick={() => navigate('/products')}
+                          className="btn btn-outline-secondary"
+                        >
+                          Continue Shopping
+                        </button>
+                      </div>
+                      <div className="col-md-4">
+                        <div className="card">
+                          <div className="card-body">
+                            <div className="d-flex justify-content-between mb-2">
+                              <span>Total Items:</span>
+                              <span>{getTotalItems()}</span>
+                            </div>
+                            <div className="d-flex justify-content-between mb-3">
+                              <span className="fw-bold">Total Amount:</span>
+                              <span className="fw-bold text-success fs-5">₹{getTotalPrice()}</span>
+                            </div>
+                            <button 
+                              onClick={proceedToCheckout}
+                              className="btn btn-success w-100"
+                            >
+                              Proceed to Checkout
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

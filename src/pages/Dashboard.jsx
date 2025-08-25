@@ -1,87 +1,86 @@
-import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 function Dashboard() {
-  const navigate = useNavigate();
   const currentUser = localStorage.getItem('currentUser');
   const userData = currentUser ? JSON.parse(currentUser) : null;
-
-  useEffect(() => {
-    if (!currentUser) {
-      navigate('/login');
-    }
-  }, [currentUser, navigate]);
+  const { isDark } = useTheme();
 
   if (!userData) {
-    return <div>Redirecting to login...</div>;
+    return (
+      <div className="container py-5">
+        <div className="alert alert-warning">
+          Please log in to access the dashboard.
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ 
-      maxWidth: '800px', 
-      margin: '0 auto', 
-      padding: '2rem',
-      textAlign: 'center'
-    }}>
-      <h1>Welcome, {userData.userName}!</h1>
-      <p>You are successfully logged in to your dashboard.</p>
-      
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-        gap: '1rem',
-        marginTop: '2rem'
-      }}>
-        <Link 
-          to="/products" 
-          style={{ 
-            backgroundColor: '#007bff', 
-            color: 'white', 
-            padding: '2rem', 
-            textDecoration: 'none', 
-            borderRadius: '8px',
-            display: 'block'
-          }}
-        >
-          <h3>Browse Products</h3>
-          <p>Discover our latest collection</p>
-        </Link>
-        
-        <Link 
-          to="/cart" 
-          style={{ 
-            backgroundColor: '#28a745', 
-            color: 'white', 
-            padding: '2rem', 
-            textDecoration: 'none', 
-            borderRadius: '8px',
-            display: 'block'
-          }}
-        >
-          <h3>My Cart</h3>
-          <p>View items in your cart</p>
-        </Link>
-        
-        <Link 
-          to="/orders" 
-          style={{ 
-            backgroundColor: '#ffc107', 
-            color: 'black', 
-            padding: '2rem', 
-            textDecoration: 'none', 
-            borderRadius: '8px',
-            display: 'block'
-          }}
-        >
-          <h3>My Orders</h3>
-          <p>Track your order status</p>
-        </Link>
-      </div>
-      
-      <div style={{ marginTop: '2rem' }}>
-        <h3>User Information</h3>
-        <p><strong>Name:</strong> {userData.userName}</p>
-        <p><strong>Email:</strong> {userData.userEmail}</p>
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-lg-8">
+          <div className={`card shadow-lg ${isDark ? 'bg-dark text-light border-secondary' : 'bg-white'}`}>
+            <div className="card-header text-center py-4">
+              <h1 
+                className="display-4 fw-bold mb-0"
+                style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+              >
+                Welcome, {userData.userName}!
+              </h1>
+            </div>
+            <div className="card-body p-5">
+              <p 
+                className="lead text-center mb-5"
+                style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+              >
+                You are successfully logged in to your dashboard.
+              </p>
+              
+              <div className={`card ${isDark ? 'bg-secondary border-secondary' : 'bg-light'} mb-4`}>
+                <div className="card-header">
+                  <h3 
+                    className="mb-0"
+                    style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+                  >
+                    User Information
+                  </h3>
+                </div>
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <p 
+                        className="mb-2"
+                        style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                      >
+                        <strong style={{ color: isDark ? '#f0f6fc' : '#212529' }}>Name:</strong> {userData.userName}
+                      </p>
+                    </div>
+                    <div className="col-md-6">
+                      <p 
+                        className="mb-2"
+                        style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                      >
+                        <strong style={{ color: isDark ? '#f0f6fc' : '#212529' }}>Email:</strong> {userData.userEmail}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="d-flex justify-content-center gap-3">
+                <a href="/products" className="btn btn-primary btn-lg px-4 py-3">
+                  🛒 Browse Products
+                </a>
+                <a href="/cart" className="btn btn-success btn-lg px-4 py-3">
+                  🛍️ View Cart
+                </a>
+                <a href="/orders" className="btn btn-warning btn-lg px-4 py-3 text-dark">
+                  📦 My Orders
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('All');
+  const { isDark } = useTheme();
 
-  // Load orders from localStorage on component mount
   useEffect(() => {
     const savedOrders = localStorage.getItem('orders');
     if (savedOrders) {
@@ -53,36 +54,13 @@ function Orders() {
     }
   };
 
-  const reorder = (order) => {
-    // Add items back to cart
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    
-    if (order.items) {
-      // If order has detailed items
-      const newCart = [...existingCart, ...order.items];
-      localStorage.setItem('cart', JSON.stringify(newCart));
-    }
-    
-    alert('Items added to cart!');
-  };
-
   const getStatusColor = (status) => {
     switch(status) {
-      case 'Delivered': return '#28a745';
-      case 'Shipped': return '#007bff';
-      case 'Pending': return '#ffc107';
-      case 'Cancelled': return '#dc3545';
-      default: return '#6c757d';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch(status) {
-      case 'Delivered': return '✓';
-      case 'Shipped': return '🚚';
-      case 'Pending': return '⏳';
-      case 'Cancelled': return '✕';
-      default: return '📦';
+      case 'Delivered': return 'success';
+      case 'Shipped': return 'primary';
+      case 'Pending': return 'warning';
+      case 'Cancelled': return 'danger';
+      default: return 'secondary';
     }
   };
 
@@ -103,215 +81,179 @@ function Orders() {
   const stats = getOrderStats();
 
   return (
-    <div style={{ 
-      padding: '2rem', 
-      maxWidth: '1000px', 
-      margin: '0 auto',
-      backgroundColor: '#f5f5f5',
-      minHeight: '80vh'
-    }}>
-      <div style={{ 
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '10px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{ marginBottom: '2rem' }}>Your Orders ({orders.length})</h1>
-        
-        {/* Order Statistics */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
-          gap: '1rem', 
-          marginBottom: '2rem' 
-        }}>
-          <div style={{ 
-            padding: '1rem', 
-            backgroundColor: '#f8f9fa', 
-            borderRadius: '8px', 
-            textAlign: 'center',
-            border: '2px solid #007bff'
-          }}>
-            <h3>{stats.total}</h3>
-            <p>Total Orders</p>
-          </div>
-          <div style={{ 
-            padding: '1rem', 
-            backgroundColor: '#d4edda', 
-            borderRadius: '8px', 
-            textAlign: 'center' 
-          }}>
-            <h3>{stats.delivered}</h3>
-            <p>Delivered</p>
-          </div>
-          <div style={{ 
-            padding: '1rem', 
-            backgroundColor: '#cce7ff', 
-            borderRadius: '8px', 
-            textAlign: 'center' 
-          }}>
-            <h3>{stats.shipped}</h3>
-            <p>Shipped</p>
-          </div>
-          <div style={{ 
-            padding: '1rem', 
-            backgroundColor: '#fff3cd', 
-            borderRadius: '8px', 
-            textAlign: 'center' 
-          }}>
-            <h3>{stats.pending}</h3>
-            <p>Pending</p>
-          </div>
-        </div>
-
-        {/* Filter Buttons */}
-        <div style={{ marginBottom: '2rem' }}>
-          <span style={{ marginRight: '1rem', fontWeight: 'bold' }}>Filter by status:</span>
-          {['All', 'Pending', 'Shipped', 'Delivered', 'Cancelled'].map(status => (
-            <button 
-              key={status}
-              onClick={() => setFilter(status)}
-              style={{ 
-                backgroundColor: filter === status ? '#007bff' : '#f8f9fa',
-                color: filter === status ? 'white' : '#333',
-                border: '1px solid #ddd',
-                padding: '0.5rem 1rem', 
-                borderRadius: '4px',
-                cursor: 'pointer',
-                margin: '0.25rem'
-              }}
-            >
-              {status}
-            </button>
-          ))}
-        </div>
-        
-        {filteredOrders.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <h2 style={{ color: '#666', marginBottom: '1rem' }}>
-              {filter === 'All' ? 'No orders found' : `No ${filter.toLowerCase()} orders`}
-            </h2>
-            <p>Start shopping to see your orders here!</p>
-          </div>
-        ) : (
-          <div>
-            {filteredOrders.map(order => (
-              <div 
-                key={order.id} 
+    <div 
+      className="container py-5" 
+      style={{ 
+        minHeight: '80vh',
+        backgroundColor: isDark ? '#0d1117' : 'transparent' 
+      }}
+    >
+      <div className="row justify-content-center">
+        <div className="col-lg-10">
+          <div className={`card shadow-lg ${isDark ? 'bg-dark text-light border-secondary' : 'bg-white'}`}>
+            <div className="card-header py-4">
+              <h1 
+                className="mb-0 text-center"
                 style={{ 
-                  border: '1px solid #ddd', 
-                  padding: '1.5rem', 
-                  margin: '1rem 0', 
-                  borderRadius: '8px',
-                  backgroundColor: '#f9f9f9',
-                  borderLeft: `4px solid ${getStatusColor(order.status)}`
+                  color: isDark ? '#f0f6fc' : '#212529',
+                  fontSize: '2.5rem'
                 }}
               >
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'flex-start',
-                  marginBottom: '1rem'
-                }}>
-                  <div>
-                    <h3>Order #{order.id}</h3>
-                    <p><strong>Date:</strong> {order.date}</p>
-                    <p><strong>Products:</strong> {order.products.join(', ')}</p>
-                    <p><strong>Total:</strong> ₹{order.total}</p>
-                  </div>
-                  
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ 
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '20px',
-                      backgroundColor: getStatusColor(order.status),
-                      color: 'white',
-                      fontWeight: 'bold',
-                      marginBottom: '1rem'
-                    }}>
-                      <span style={{ marginRight: '0.5rem' }}>
-                        {getStatusIcon(order.status)}
-                      </span>
-                      {order.status}
+                Your Orders ({orders.length})
+              </h1>
+            </div>
+            
+            <div className="card-body p-4">
+              {/* Order Statistics */}
+              <div className="row mb-4">
+                <div className="col-md-3 mb-3">
+                  <div className="card bg-primary text-white text-center">
+                    <div className="card-body">
+                      <h3 className="mb-1">{stats.total}</h3>
+                      <p className="mb-0">Total Orders</p>
                     </div>
                   </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '1rem', 
-                  justifyContent: 'flex-end' 
-                }}>
-                  {order.status === 'Pending' && (
-                    <>
-                      <button 
-                        onClick={() => updateOrderStatus(order.id, 'Shipped')}
-                        style={{ 
-                          backgroundColor: '#007bff', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '0.5rem 1rem', 
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Mark as Shipped
-                      </button>
-                      <button 
-                        onClick={() => cancelOrder(order.id)}
-                        style={{ 
-                          backgroundColor: '#dc3545', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '0.5rem 1rem', 
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Cancel Order
-                      </button>
-                    </>
-                  )}
-                  
-                  {order.status === 'Shipped' && (
-                    <button 
-                      onClick={() => updateOrderStatus(order.id, 'Delivered')}
-                      style={{ 
-                        backgroundColor: '#28a745', 
-                        color: 'white', 
-                        border: 'none', 
-                        padding: '0.5rem 1rem', 
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Mark as Delivered
-                    </button>
-                  )}
-                  
-                  {(order.status === 'Delivered' || order.status === 'Cancelled') && (
-                    <button 
-                      onClick={() => reorder(order)}
-                      style={{ 
-                        backgroundColor: '#6c757d', 
-                        color: 'white', 
-                        border: 'none', 
-                        padding: '0.5rem 1rem', 
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Reorder
-                    </button>
-                  )}
+                <div className="col-md-3 mb-3">
+                  <div className="card bg-success text-white text-center">
+                    <div className="card-body">
+                      <h3 className="mb-1">{stats.delivered}</h3>
+                      <p className="mb-0">Delivered</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <div className="card bg-info text-white text-center">
+                    <div className="card-body">
+                      <h3 className="mb-1">{stats.shipped}</h3>
+                      <p className="mb-0">Shipped</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <div className="card bg-warning text-dark text-center">
+                    <div className="card-body">
+                      <h3 className="mb-1">{stats.pending}</h3>
+                      <p className="mb-0">Pending</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
+
+              {/* Filter Buttons */}
+              <div className="mb-4 text-center">
+                <h5 
+                  className="mb-3"
+                  style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+                >
+                  Filter by status:
+                </h5>
+                <div className="btn-group flex-wrap" role="group">
+                  {['All', 'Pending', 'Shipped', 'Delivered', 'Cancelled'].map(status => (
+                    <button 
+                      key={status}
+                      onClick={() => setFilter(status)}
+                      className={`btn ${filter === status ? 'btn-primary' : (isDark ? 'btn-outline-light' : 'btn-outline-secondary')} mx-1 mb-2`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {filteredOrders.length === 0 ? (
+                <div className="text-center py-5">
+                  <h2 
+                    className="mb-3"
+                    style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                  >
+                    {filter === 'All' ? 'No orders found' : `No ${filter.toLowerCase()} orders`}
+                  </h2>
+                  <p style={{ color: isDark ? '#8b949e' : '#6c757d' }}>
+                    Start shopping to see your orders here!
+                  </p>
+                </div>
+              ) : (
+                <div className="row">
+                  {filteredOrders.map(order => (
+                    <div key={order.id} className="col-lg-6 mb-4">
+                      <div className={`card h-100 ${isDark ? 'bg-secondary border-secondary' : 'bg-light'}`}>
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                              <h5 
+                                className="card-title mb-2"
+                                style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+                              >
+                                Order #{order.id}
+                              </h5>
+                              <span className={`badge bg-${getStatusColor(order.status)} px-3 py-2`}>
+                                {order.status}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="order-details">
+                            <p 
+                              className="mb-2"
+                              style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                            >
+                              <strong style={{ color: isDark ? '#f0f6fc' : '#212529' }}>
+                                Date:
+                              </strong> {order.date}
+                            </p>
+                            <p 
+                              className="mb-2"
+                              style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                            >
+                              <strong style={{ color: isDark ? '#f0f6fc' : '#212529' }}>
+                                Products:
+                              </strong> {order.products.join(', ')}
+                            </p>
+                            <p 
+                              className="mb-3 fs-5"
+                              style={{ color: isDark ? '#58a6ff' : '#0969da' }}
+                            >
+                              <strong>Total: ₹{order.total}</strong>
+                            </p>
+                          </div>
+                          
+                          <div className="d-flex gap-2 flex-wrap">
+                            {order.status === 'Pending' && (
+                              <>
+                                <button 
+                                  onClick={() => updateOrderStatus(order.id, 'Shipped')}
+                                  className="btn btn-primary btn-sm"
+                                >
+                                  Ship Order
+                                </button>
+                                <button 
+                                  onClick={() => cancelOrder(order.id)}
+                                  className="btn btn-danger btn-sm"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            )}
+                            
+                            {order.status === 'Shipped' && (
+                              <button 
+                                onClick={() => updateOrderStatus(order.id, 'Delivered')}
+                                className="btn btn-success btn-sm"
+                              >
+                                Mark Delivered
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -1,139 +1,93 @@
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 function Home() {
   const currentUser = localStorage.getItem('currentUser');
   const userData = currentUser ? JSON.parse(currentUser) : null;
+  const { isDark } = useTheme();
 
   return (
-    <div style={{ 
-      minHeight: '80vh',
-      backgroundColor: '#f5f5f5',
-      padding: '2rem'
-    }}>
-      <div style={{ 
-        textAlign: 'center', 
-        maxWidth: '800px',
-        margin: '0 auto',
-        backgroundColor: 'white',
-        padding: '3rem',
-        borderRadius: '10px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{ 
-          fontSize: '2.5rem',
-          marginBottom: '1rem',
-          color: '#333'
-        }}>
-          Welcome to Mini Basket App
-        </h1>
-        
-        {userData ? (
-          <h2 style={{ 
-            color: '#007bff',
-            marginBottom: '2rem'
-          }}>
-            Hello, {userData.userName}! Ready to shop?
-          </h2>
-        ) : (
-          <h2 style={{ 
-            color: '#666',
-            marginBottom: '2rem'
-          }}>
-            Please login to start shopping!
-          </h2>
-        )}
-        
-        <div style={{ marginTop: '2rem' }}>
-          <Link 
-            to="/products" 
-            style={{ 
-              backgroundColor: '#007bff', 
-              color: 'white', 
-              padding: '1rem 2rem', 
-              textDecoration: 'none', 
-              borderRadius: '4px',
-              margin: '0.5rem',
-              display: 'inline-block',
-              fontSize: '1.1rem',
-              fontWeight: 'bold'
-            }}
-          >
-            Browse Products
-          </Link>
-          
-          {userData && (
-            <>
-              <Link 
-                to="/cart" 
-                style={{ 
-                  backgroundColor: '#28a745', 
-                  color: 'white', 
-                  padding: '1rem 2rem', 
-                  textDecoration: 'none', 
-                  borderRadius: '4px',
-                  margin: '0.5rem',
-                  display: 'inline-block',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold'
-                }}
+    <div className="container py-5" style={{ minHeight: '80vh' }}>
+      <div className="row justify-content-center">
+        <div className="col-lg-8">
+          <div className={`card shadow-lg ${isDark ? 'bg-dark text-light border-secondary' : 'bg-light'}`}>
+            <div className="card-body text-center p-5">
+              <h1 
+                className="display-3 fw-bold mb-4"
+                style={{ color: isDark ? '#f0f6fc' : '#212529' }}
               >
-                View Cart
-              </Link>
-              <Link 
-                to="/orders" 
-                style={{ 
-                  backgroundColor: '#ffc107', 
-                  color: 'black', 
-                  padding: '1rem 2rem', 
-                  textDecoration: 'none', 
-                  borderRadius: '4px',
-                  margin: '0.5rem',
-                  display: 'inline-block',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold'
-                }}
-              >
-                My Orders
-              </Link>
-            </>
-          )}
-        </div>
+                Welcome to Mini Basket App
+              </h1>
+              
+              {userData ? (
+                <h2 
+                  className="mb-4"
+                  style={{ color: isDark ? '#58a6ff' : '#0969da' }}
+                >
+                  Hello, {userData.userName}! Ready to shop?
+                </h2>
+              ) : (
+                <h2 
+                  className="mb-4"
+                  style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                >
+                  Please login to start shopping!
+                </h2>
+              )}
+              
+              <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                <Link 
+                  to="/products" 
+                  className="btn btn-primary btn-lg px-4 py-3"
+                >
+                  🛒 Browse Products
+                </Link>
+                
+                {userData && (
+                  <>
+                    <Link 
+                      to="/cart" 
+                      className="btn btn-success btn-lg px-4 py-3"
+                    >
+                      🛍️ View Cart
+                    </Link>
+                    <Link 
+                      to="/orders" 
+                      className="btn btn-warning btn-lg px-4 py-3 text-dark"
+                    >
+                      📦 My Orders
+                    </Link>
+                  </>
+                )}
+              </div>
 
-        {!userData && (
-          <div style={{ marginTop: '2rem' }}>
-            <p style={{ marginBottom: '1rem', color: '#666' }}>
-              New to Mini Basket? Create an account to get started!
-            </p>
-            <Link 
-              to="/signup" 
-              style={{ 
-                backgroundColor: '#28a745', 
-                color: 'white', 
-                padding: '0.75rem 1.5rem', 
-                textDecoration: 'none', 
-                borderRadius: '4px',
-                margin: '0.5rem',
-                display: 'inline-block'
-              }}
-            >
-              Sign Up
-            </Link>
-            <Link 
-              to="/login" 
-              style={{ 
-                backgroundColor: '#6c757d', 
-                color: 'white', 
-                padding: '0.75rem 1.5rem', 
-                textDecoration: 'none', 
-                borderRadius: '4px',
-                margin: '0.5rem',
-                display: 'inline-block'
-              }}
-            >
-              Login
-            </Link>
+              {!userData && (
+                <div className="mt-5">
+                  <p 
+                    className="mb-4"
+                    style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                  >
+                    New to Mini Basket? Create an account to get started!
+                  </p>
+                  <div className="d-flex justify-content-center gap-3">
+                    <Link 
+                      to="/signup" 
+                      className="btn btn-success btn-lg px-4 py-2"
+                    >
+                      Sign Up
+                    </Link>
+                    <Link 
+                      to="/login" 
+                      className="btn btn-outline-primary btn-lg px-4 py-2"
+                    >
+                      Login
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -1,166 +1,150 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 function Signup() {
-  const [formData, setFormData] = useState({
-    userName: '',
-    userEmail: '',
-    userPassword: ''
-  });
-  const [message, setMessage] = useState('');
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userPassword, setUserPassword] = useState('');
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const { isDark } = useTheme();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!formData.userName || !formData.userEmail || !formData.userPassword) {
-      setMessage('Please fill in all fields');
+    if (!userName || !userEmail || !userPassword) {
+      alert('Please fill in all fields');
       return;
     }
 
-    // Check if user already exists
+    // Save user data to localStorage
+    const userData = { userName, userEmail, userPassword };
     const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const userExists = existingUsers.find(user => user.userEmail === formData.userEmail);
     
-    if (userExists) {
-      setMessage('User with this email already exists');
+    // Check if user already exists
+    if (existingUsers.find(user => user.userEmail === userEmail)) {
+      alert('User already exists with this email');
       return;
     }
-
-    // Add new user
-    existingUsers.push(formData);
-    localStorage.setItem('users', JSON.stringify(existingUsers));
     
-    setMessage('Account created successfully!');
-    setTimeout(() => {
-      navigate('/login');
-    }, 1500);
+    existingUsers.push(userData);
+    localStorage.setItem('users', JSON.stringify(existingUsers));
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    
+    alert('Signup successful!');
+    navigate('/dashboard');
   };
 
   return (
-    <div style={{ 
-      minHeight: '80vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f5f5f5',
-      padding: '2rem'
-    }}>
-      <div style={{ 
-        maxWidth: '400px', 
-        width: '100%',
-        padding: '2rem',
-        backgroundColor: 'white',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#333' }}>
-          Sign Up
-        </h1>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Username:
-            </label>
-            <input
-              type="text"
-              name="userName"
-              value={formData.userName}
-              onChange={handleChange}
-              style={{ 
-                width: '100%', 
-                padding: '0.75rem', 
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem'
-              }}
-              placeholder="Enter your username"
-            />
+    <div 
+      className="container py-5" 
+      style={{ 
+        minHeight: '80vh',
+        backgroundColor: isDark ? '#0d1117' : 'transparent' 
+      }}
+    >
+      <div className="row justify-content-center">
+        <div className="col-md-6 col-lg-5">
+          <div className={`card shadow-lg ${isDark ? 'bg-dark text-light border-secondary' : 'bg-white'}`}>
+            <div className="card-header text-center py-4">
+              <h1 
+                className="display-5 fw-bold mb-0"
+                style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+              >
+                Create Account
+              </h1>
+              <p 
+                className="mt-2 mb-0"
+                style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+              >
+                Join Mini Basket App today!
+              </p>
+            </div>
+            
+            <div className="card-body p-5">
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label 
+                    htmlFor="userName" 
+                    className="form-label fw-bold"
+                    style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    className={`form-control form-control-lg ${isDark ? 'bg-secondary text-light border-secondary' : ''}`}
+                    id="userName"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label 
+                    htmlFor="userEmail" 
+                    className="form-label fw-bold"
+                    style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    className={`form-control form-control-lg ${isDark ? 'bg-secondary text-light border-secondary' : ''}`}
+                    id="userEmail"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label 
+                    htmlFor="userPassword" 
+                    className="form-label fw-bold"
+                    style={{ color: isDark ? '#f0f6fc' : '#212529' }}
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    className={`form-control form-control-lg ${isDark ? 'bg-secondary text-light border-secondary' : ''}`}
+                    id="userPassword"
+                    value={userPassword}
+                    onChange={(e) => setUserPassword(e.target.value)}
+                    placeholder="Create a strong password"
+                    required
+                  />
+                </div>
+                
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-lg w-100 mb-3"
+                >
+                  Create Account
+                </button>
+              </form>
+              
+              <div className="text-center">
+                <p 
+                  className="mb-2"
+                  style={{ color: isDark ? '#8b949e' : '#6c757d' }}
+                >
+                  Already have an account?
+                </p>
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="btn btn-outline-secondary"
+                >
+                  Sign In Instead
+                </button>
+              </div>
+            </div>
           </div>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Email:
-            </label>
-            <input
-              type="email"
-              name="userEmail"
-              value={formData.userEmail}
-              onChange={handleChange}
-              style={{ 
-                width: '100%', 
-                padding: '0.75rem', 
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem'
-              }}
-              placeholder="Enter your email"
-            />
-          </div>
-          
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Password:
-            </label>
-            <input
-              type="password"
-              name="userPassword"
-              value={formData.userPassword}
-              onChange={handleChange}
-              style={{ 
-                width: '100%', 
-                padding: '0.75rem', 
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem'
-              }}
-              placeholder="Enter your password"
-            />
-          </div>
-          
-          <button 
-            type="submit"
-            style={{ 
-              backgroundColor: '#007bff', 
-              color: 'white', 
-              border: 'none', 
-              padding: '1rem 2rem', 
-              borderRadius: '4px',
-              cursor: 'pointer',
-              width: '100%',
-              fontSize: '1rem',
-              fontWeight: 'bold'
-            }}
-          >
-            Sign Up
-          </button>
-        </form>
-        
-        {message && (
-          <p style={{ 
-            marginTop: '1rem', 
-            textAlign: 'center',
-            padding: '0.5rem',
-            borderRadius: '4px',
-            backgroundColor: message.includes('success') ? '#d4edda' : '#f8d7da',
-            color: message.includes('success') ? '#155724' : '#721c24',
-            border: `1px solid ${message.includes('success') ? '#c3e6cb' : '#f5c6cb'}`
-          }}>
-            {message}
-          </p>
-        )}
-        
-        <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-          Already have an account? <a href="/login" style={{ color: '#007bff', textDecoration: 'none' }}>Login here</a>
-        </p>
+        </div>
       </div>
     </div>
   );
